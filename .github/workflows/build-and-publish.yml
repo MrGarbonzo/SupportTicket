@@ -26,7 +26,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       
-      # Add this step to create lowercase repository name
+      # Prepare lowercase repository name
       - name: Prepare repository name
         run: |
           echo "REPO_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
@@ -37,3 +37,6 @@ jobs:
           context: .
           push: true
           tags: ghcr.io/${{ env.REPO_NAME }}:latest
+          # Disable caching to avoid package-lock.json error
+          cache-from: type=gha,scope=${{ github.workflow }}
+          cache-to: type=gha,scope=${{ github.workflow }}
