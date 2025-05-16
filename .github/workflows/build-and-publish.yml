@@ -3,7 +3,7 @@ name: Build and Publish Docker Image
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:  # Allows manual trigger from GitHub UI
+  workflow_dispatch:
 
 jobs:
   build-and-publish:
@@ -26,8 +26,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       
-      # Prepare lowercase repository name
-      - name: Prepare repository name
+      - name: Prepare lowercase repository name
         run: |
           echo "REPO_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
           
@@ -37,6 +36,8 @@ jobs:
           context: .
           push: true
           tags: ghcr.io/${{ env.REPO_NAME }}:latest
-          # Disable caching to avoid package-lock.json error
-          cache-from: type=gha,scope=${{ github.workflow }}
-          cache-to: type=gha,scope=${{ github.workflow }}
+          # Completely disable caching
+          no-cache: true
+          # Do not use the default BuildKit cache
+          cache-from: ''
+          cache-to: ''
