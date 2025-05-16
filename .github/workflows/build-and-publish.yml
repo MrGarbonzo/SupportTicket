@@ -36,4 +36,8 @@ jobs:
         with:
           context: .
           push: true
+<<<<<<< HEAD
           tags: ghcr.io/${{ env.REPO_NAME }}:latest
+=======
+          tags: ghcr.io/${{ env.REPO_NAME }}:latest
+>>>>>>> 52e4d8688bc675c926cd083c34af78ae3aa40db5
