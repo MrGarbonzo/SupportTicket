@@ -3,14 +3,12 @@ version: '3.8'
 services:
   # MongoDB Service
   mongodb:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
+    image: mongo:6.0
     volumes:
       - mongodb_data:/data/db
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_ROOT_PASSWORD=password  # For TEE environment
       - MONGO_INITDB_DATABASE=telegram_support_bot
     networks:
       - bot_network
@@ -24,13 +22,9 @@ services:
 
   # Node.js Application for the Bot
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
+    image: ghcr.io/mrgarbonzo/supporticket:latest
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
       - MONGODB_URI=mongodb://admin:password@mongodb:27017/telegram_support_bot?authSource=admin
       - BOT_TOKEN=7908372655:AAGLZyafh5cO7GuX_77eeaKCwQiw8ImNG7I
       - PORT=3000
@@ -45,9 +39,7 @@ services:
 
   # Service to set up initial admin users
   setup:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY_NAME:latest
     environment:
       - MONGODB_URI=mongodb://admin:password@mongodb:27017/telegram_support_bot?authSource=admin
       - ADMIN_USER_IDS=587534846
