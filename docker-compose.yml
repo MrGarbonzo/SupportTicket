@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # MongoDB Service
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=telegram_support_bot
+    networks:
+      - bot_network
+    restart: always
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongodb://admin:password@localhost:27017/telegram_support_bot?authSource=admin --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Node.js Application for the Bot
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://admin:password@mongodb:27017/telegram_support_bot?authSource=admin
+      - BOT_TOKEN=7908372655:AAGLZyafh5cO7GuX_77eeaKCwQiw8ImNG7I
+      - PORT=3000
+      - SUPPORT_CHANNEL_ID=-1002682721948
+      - ADMIN_USER_IDS=587534846
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - bot_network
+    restart: always
+
+  # Service to set up initial admin users
+  setup:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - MONGODB_URI=mongodb://admin:password@mongodb:27017/telegram_support_bot?authSource=admin
+      - ADMIN_USER_IDS=587534846
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    command: node setup-staff.js
+    networks:
+      - bot_network
+    restart: on-failure
+
+volumes:
+  mongodb_data:
+    name: telegram_support_bot_data
+
+networks:
+  bot_network:
+    driver: bridge
