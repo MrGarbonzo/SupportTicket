@@ -22,7 +22,7 @@ services:
 
   # Node.js Application for the Bot
   app:
-    image: ghcr.io/mrgarbonzo/supporticket:latest
+    image: ghcr.io/mrgarbonzo/supportticket :latest
     environment:
       - NODE_ENV=production
       - MONGODB_URI=mongodb://admin:password@mongodb:27017/telegram_support_bot?authSource=admin
